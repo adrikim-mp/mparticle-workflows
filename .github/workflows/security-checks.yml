@@ -48,7 +48,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: "Run Semgrep"
-        run: "semgrep ci --config='${{ env.SEMGREP_RULES }}'"
+        run: "semgrep ci"
+        env:
+          SEMGREP_RULES: ${{ env.SEMGREP_RULES }}
 
   run-mobsfscan:
     name: "Run mobsfscan to find Android/iOS vulnerabilities and misconfigurations"
