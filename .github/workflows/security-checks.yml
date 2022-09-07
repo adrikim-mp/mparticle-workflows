@@ -1,7 +1,8 @@
 name: "Static analysis checks for security vulnerabilities"
 on:
   workflow_call:
-
+  pull_request: #
+    types: [opened, reopened, synchronize, edited] #
 jobs:
   security-lint:
     name: "Run all applicable static analysis checks for vulnerabilities and security antipatterns"
