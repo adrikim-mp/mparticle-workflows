@@ -1,0 +1,49 @@
+name: "Static analysis checks for security vulnerabilities"
+on:
+  workflow_call:
+
+jobs:
+  security-lint:
+    name: "Run all applicable static analysis checks for vulnerabilities and security antipatterns"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v2
+
+      - name: "Determine which Semgrep config(s) to use"
+        run: |
+          REPO_NAME=${{ github.event.repository.name }}
+
+          if [[ $REPO_NAME =~ "/android/" ]]; then
+              IS_MOBILE="true"
+              SEMGREP_RULES="p/java p/kotlin p/javascript p/bash p/yaml"
+
+          elif [[ $REPO_NAME =~ "/apple/" ]]; then
+              IS_MOBILE="true"
+              SEMGREP_RULES="p/ci p/javascript p/ruby p/bash p/yaml"
+
+          elif [[ $REPO_NAME =~ "/web/" || $REPO_NAME =~ "/node/" ]]; then
+              IS_MOBILE="false"
+              SEMGREP_RULES="p/javascript p/typescript"
+
+          else
+              IS_MOBILE="false"
+              SEMGREP_RULES="auto"
+          fi
+
+          echo "IS_MOBILE=$IS_MOBILE" >> $GITHUB_ENV
+          echo "SEMGREP_RULES=$SEMGREP_RULES" >> $GITHUB_ENV
+
+      - name: "Run Semgrep"
+        run: semgrep ci
+        env:
+          SEMGREP_RULES:
+            ${{ env.SEMGREP_RULES }}
+
+      - name: "Install mobsfscan"
+        if: env.IS_MOBILE == 'true'
+        run: "pip install mobsfscan"
+
+      - name: "Run mobsfscan"
+        if: env.IS_MOBILE == 'true'
+        run: "mobsfscan . --sonarqube"
