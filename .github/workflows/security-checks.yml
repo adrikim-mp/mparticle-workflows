@@ -37,7 +37,6 @@ jobs:
 
       - name: "Run Semgrep"
         container:
-          # A Docker image with Semgrep installed. Don't change this.
           image: returntocorp/semgrep
         run: semgrep ci
         env:
