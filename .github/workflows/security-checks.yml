@@ -1,11 +1,11 @@
 name: "Static analysis checks for security vulnerabilities"
 on:
   workflow_call:
-  pull_request: #
+  pull_request: # TODO
     types: [opened, reopened, synchronize, edited, ready_for_review, review_requested, assigned ] #
 jobs:
   security-lint:
-    name: "Run all applicable static analysis checks for vulnerabilities and security antipatterns"
+    name: "Determine which checks to run and set environmental variables"
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
@@ -35,18 +35,33 @@ jobs:
           echo "IS_MOBILE=$IS_MOBILE" >> $GITHUB_ENV
           echo "SEMGREP_RULES=$SEMGREP_RULES" >> $GITHUB_ENV
 
+          echo "IS_MOBILE=$IS_MOBILE and SEMGREP_RULES=$SEMGREP_RULES"
+
+  run-semgrep:
+    name: "Run Semgrep to find vulnerabilities and security antipatterns"
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    if: (github.actor != 'dependabot[bot]')  # skip for permissions issues for dependabot-opened PR's
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v3
+
       - name: "Run Semgrep"
-        container:
-          image: returntocorp/semgrep
         run: semgrep ci
         env:
           SEMGREP_RULES:
             ${{ env.SEMGREP_RULES }}
 
-      - name: "Install mobsfscan"
-        if: env.IS_MOBILE == 'true'
-        run: "pip install mobsfscan"
+  run-mobsfscan:
+    name: "Run mobsfscan to find Android/iOS vulnerabilities and misconfigurations"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v3
 
       - name: "Run mobsfscan"
         if: env.IS_MOBILE == 'true'
-        run: "mobsfscan . --sonarqube"
+        uses: MobSF/mobsfscan@main
+        with:
+          args: '. --sonarqube'
