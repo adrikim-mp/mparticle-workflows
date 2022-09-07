@@ -1,12 +1,15 @@
 name: "Static analysis checks for security vulnerabilities"
 on:
   workflow_call:
-  pull_request: # TODO
-    types: [opened, reopened, synchronize, edited, ready_for_review, review_requested, assigned ] #
+  pull_request: # REMOVE
+    types: [opened, reopened, synchronize, edited, ready_for_review, review_requested, assigned ]
 jobs:
-  security-lint:
+  set-scan-configs:
     name: "Determine which checks to run and set environmental variables"
     runs-on: ubuntu-latest
+    #outputs:
+    #  IS_MOBILE: ${{ steps.step1.outputs.test }}
+    #  SEMGREP_CONFIGS: ${{ steps.step1.outputs.test }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
@@ -39,6 +42,7 @@ jobs:
 
   run-semgrep:
     name: "Run Semgrep to find vulnerabilities and security antipatterns"
+    needs: set-scan-configs
     runs-on: ubuntu-latest
     container:
       image: returntocorp/semgrep
@@ -54,6 +58,7 @@ jobs:
 
   run-mobsfscan:
     name: "Run mobsfscan to find Android/iOS vulnerabilities and misconfigurations"
+    needs: set-scan-configs
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
