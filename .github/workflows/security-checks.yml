@@ -51,6 +51,9 @@ jobs:
       - name: "Checkout repository"
         uses: actions/checkout@v3
 
+      - name: "test"
+        run: "echo ${{ env.SEMGREP_RULES }}"
+
       - name: "Run Semgrep"
         run: "semgrep ci"
         env:
