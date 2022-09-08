@@ -29,7 +29,7 @@ jobs:
               SEMGREP_RULES="auto"
           fi
 
-          echo "::set-output name=IS_MOBILE::$SEMGREP_RULES"
+          echo "::set-output name=SEMGREP_RULES::$SEMGREP_RULES"
           echo "Setting SEMGREP_RULES to: $SEMGREP_RULES"
 
       - name: "Enable mobsfscan if this is a mobile repo"
