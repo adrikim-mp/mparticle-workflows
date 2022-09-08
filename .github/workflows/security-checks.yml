@@ -8,10 +8,8 @@ jobs:
     name: "Determine which checks to run and set environmental variables"
     runs-on: ubuntu-latest
     outputs:
-      IS_MOBILE:
-        value: ${{ steps.set-mobsfscan.outputs.test }}
-      SEMGREP_RULES:
-        value: ${{ steps.set-semgrep.outputs.test }}
+      IS_MOBILE: ${{ steps.set-mobsfscan.outputs.IS_MOBILE }}
+      SEMGREP_RULES: ${{ steps.set-semgrep.outputs.SEMGREP_RULES }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
@@ -81,7 +79,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: "Run mobsfscan"
-        if: env.IS_MOBILE == 'true'
         uses: MobSF/mobsfscan@main
         with:
           args: '. --sonarqube'
