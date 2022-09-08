@@ -75,11 +75,17 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
+        if:
+          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} == 'false'
 
       - name: "Echo IS_MOBILE"
         run: "echo ${{ needs.set-scan-configs.outputs.IS_MOBILE }}"
+        if:
+          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} == ${{ false }}
 
       - name: "Run mobsfscan"
         uses: MobSF/mobsfscan@main
         with:
           args: '. --sonarqube'
+        if:
+          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} != 'true'
