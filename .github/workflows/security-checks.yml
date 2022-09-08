@@ -38,9 +38,9 @@ jobs:
           REPO_NAME=${{ github.event.repository.name }}
 
           if [[ $REPO_NAME =~ "/android/" || $REPO_NAME =~ "/apple/" ]]; then
-              IS_MOBILE="true"
+              IS_MOBILE=${{ true }}
           else
-              IS_MOBILE="false"
+              IS_MOBILE=${{ false }}
           fi
 
           echo "::set-output name=IS_MOBILE::$IS_MOBILE"
