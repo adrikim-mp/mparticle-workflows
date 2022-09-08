@@ -8,8 +8,10 @@ jobs:
     name: "Determine which checks to run and set environmental variables"
     runs-on: ubuntu-latest
     outputs:
-      IS_MOBILE: ${{ steps.set-mobsfscan.outputs.test }}
-      SEMGREP_RULES: ${{ steps.set-semgrep.outputs.test }}
+      IS_MOBILE:
+        value: ${{ steps.set-mobsfscan.outputs.test }}
+      SEMGREP_RULES:
+        value: ${{ steps.set-semgrep.outputs.test }}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
