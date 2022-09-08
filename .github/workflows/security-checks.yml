@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     if:
       # Skip dependabot-opened PR's due to permissions issues
-      ((${{ needs.set-scan-configs.outputs.IS_MOBILE }} == "true") && (github.actor != 'dependabot[bot]'))
+      (${{ needs.set-scan-configs.outputs.IS_MOBILE }} == ${{ true }} && github.actor != 'dependabot[bot]')
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
