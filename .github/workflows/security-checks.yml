@@ -12,7 +12,7 @@ jobs:
       SEMGREP_RULES: ${{ steps.set-semgrep.outputs.SEMGREP_RULES }}
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Determine which Semgrep config(s) to use"
         id: set-semgrep
@@ -53,14 +53,12 @@ jobs:
     container:
       image: returntocorp/semgrep
     if:
-      # skip for permissions issues for dependabot-opened PR's
+      # Skip dependabot-opened PR's due to permission issues
+      # See https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#github-actions
       (github.actor != 'dependabot[bot]')
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
-
-      - name: "test"
-        run: "echo SEMGREP_RULES=${{ needs.set-scan-configs.outputs.SEMGREP_RULES }}"
 
       - name: "Run Semgrep"
         run: "semgrep ci"
@@ -72,11 +70,14 @@ jobs:
     needs: set-scan-configs
     runs-on: ubuntu-latest
     if:
-      # skip for permissions issues for dependabot-opened PR's
-      (github.actor != 'dependabot[bot]' && ${{ needs.set-scan-configs.outputs.IS_MOBILE }} == "true")
+      # Skip dependabot-opened PR's due to permissions issues
+      (${{ needs.set-scan-configs.outputs.IS_MOBILE }} == "true" && github.actor != 'dependabot[bot]')
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
+
+      - name: "Echo IS_MOBILE"
+        run: "echo ${{ needs.set-scan-configs.outputs.IS_MOBILE }}"
 
       - name: "Run mobsfscan"
         uses: MobSF/mobsfscan@main
