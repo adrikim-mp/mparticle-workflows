@@ -1,8 +1,9 @@
 name: "Static analysis checks for security vulnerabilities"
 on:
   workflow_call:
-  pull_request: # REMOVE
-    types: [opened, reopened, synchronize, edited, ready_for_review, review_requested, assigned ]
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
 jobs:
   set-scan-configs:
     name: "Determine which checks to run and set environmental variables"
@@ -30,7 +31,7 @@ jobs:
           fi
 
           echo "::set-output name=SEMGREP_RULES::$SEMGREP_RULES"
-          echo "Setting SEMGREP_RULES to: $SEMGREP_RULES"
+          echo "Setting SEMGREP_RULES to \'$SEMGREP_RULES\'"
 
       - name: "Enable mobsfscan if this is a mobile repo"
         id: set-mobsfscan
@@ -44,7 +45,7 @@ jobs:
           fi
 
           echo "::set-output name=IS_MOBILE::$IS_MOBILE"
-          echo "Setting IS_MOBILE to: $IS_MOBILE"
+          echo "Setting IS_MOBILE to \'$IS_MOBILE\'"
 
   run-semgrep:
     name: "Run Semgrep to find vulnerabilities and security antipatterns"
@@ -75,17 +76,8 @@ jobs:
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v3
-        if:
-          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} == format('false')
-
-      - name: "Echo IS_MOBILE"
-        run: "echo ${{ needs.set-scan-configs.outputs.IS_MOBILE }}"
-        if:
-          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} == ${{ false }}
 
       - name: "Run mobsfscan"
         uses: MobSF/mobsfscan@main
         with:
           args: '. --sonarqube'
-        if:
-          ${{ needs.set-scan-configs.outputs.IS_MOBILE }} != 'true'
